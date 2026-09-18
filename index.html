@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Durasi Pekerjaan Galian dengan Excavator | TPAB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#E6EAE8; --surface:#F7F8F6; --ink:#1E2529; --muted:#56636A; --line:#C6CECB;
+  --yellow:#E3A400; --yellow-soft:#FBEBB8; --yellow-ink:#2A2100; --soil:#94643D; --soil-light:#D8BC99;
+  --steel:#3D4A52; --sky:#DDE7EA; --warn:#A2471B; --warn-bg:#F8E4DA; --ok:#2E6B4F; --focus:#0B6E99;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15191C; --surface:#1E2428; --ink:#E4E9E7; --muted:#9BA7AC; --line:#34403F;
+    --yellow:#F0B400; --yellow-soft:#4A3B0A; --yellow-ink:#1A1400; --soil:#B7835A; --soil-light:#5E4631;
+    --steel:#B9C6CC; --sky:#22313A; --warn:#F09A6E; --warn-bg:#3E2419; --ok:#7CC8A2; --focus:#5CC3EE;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15191C; --surface:#1E2428; --ink:#E4E9E7; --muted:#9BA7AC; --line:#34403F;
+  --yellow:#F0B400; --yellow-soft:#4A3B0A; --yellow-ink:#1A1400; --soil:#B7835A; --soil-light:#5E4631;
+  --steel:#B9C6CC; --sky:#22313A; --warn:#F09A6E; --warn-bg:#3E2419; --ok:#7CC8A2; --focus:#5CC3EE;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Source Sans 3","Segoe UI",Roboto,Arial,sans-serif;line-height:1.5}
+h1,h2,h3,.num,legend{font-family:"Barlow Condensed","Arial Narrow",Arial,sans-serif}
+header{max-width:1240px;margin:0 auto;padding:1.5rem 1.25rem .25rem;display:grid;grid-template-columns:auto 1fr;gap:1rem;align-items:end}
+.stripe{width:14px;align-self:stretch;background:repeating-linear-gradient(-45deg,var(--yellow) 0 8px,var(--ink) 8px 16px);border-radius:2px}
+h1{font-size:clamp(1.9rem,4.6vw,3rem);line-height:1;margin:0;font-weight:700}
+header p{margin:.4rem 0 0;color:var(--muted);max-width:70ch}
+main{max-width:1240px;margin:0 auto;padding:1rem 1.25rem 2rem}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:1.25rem;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:1.1rem}
+h2{font-size:1.55rem;font-weight:600;margin:0 0 .5rem;line-height:1.1}
+h3{font-size:1.2rem;font-weight:600;margin:1.2rem 0 .4rem}
+fieldset{border:none;border-top:2px solid var(--ink);margin:0 0 1.2rem;padding:.5rem 0 0}
+legend{font-size:1.3rem;font-weight:600;padding-right:.5rem}
+legend span{display:inline-block;background:var(--ink);color:var(--surface);border-radius:3px;padding:0 .4rem;margin-right:.35rem}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:.7rem 1rem}
+.f{display:flex;flex-direction:column;gap:.2rem;margin:.45rem 0}
+.f.full{grid-column:1/-1}
+label{font-weight:600;font-size:.95rem}
+label small,.hint{font-weight:400;color:var(--muted);font-size:.85rem}
+input[type=number],select{font:inherit;width:100%;padding:.4rem .5rem;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--ink)}
+input[type=number]{text-align:right}
+input[type=range]{width:100%;accent-color:var(--yellow)}
+.check{display:flex;gap:.5rem;align-items:flex-start;margin:.5rem 0}
+.check input{margin-top:.3rem;accent-color:var(--yellow);width:1.05rem;height:1.05rem}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:.45rem .85rem;border-radius:4px}
+button.primary{background:var(--yellow);color:var(--yellow-ink);border-color:var(--yellow);font-weight:700}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.msg{border-left:4px solid var(--warn);background:var(--warn-bg);padding:.5rem .7rem;margin:.5rem 0;border-radius:0 4px 4px 0;font-size:.93rem}
+.msg.info{border-color:var(--focus);background:var(--sky)}
+.derived{font-size:.9rem;color:var(--muted);margin-top:.1rem}
+.derived b{color:var(--ink)}
+
+/* results */
+.results{position:sticky;top:1rem}
+.big{display:grid;grid-template-columns:auto 1fr;gap:.2rem 1rem;align-items:end;border-left:6px solid var(--yellow);padding-left:.9rem}
+.big .num{font-size:clamp(3.4rem,8vw,5.2rem);font-weight:700;line-height:.9}
+.big .lbl{font-size:1.05rem;color:var(--muted);padding-bottom:.4rem}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem 1rem;margin-top:1rem}
+.kpis div{border-top:1px solid var(--line);padding-top:.35rem}
+.kpis .num{display:block;font-size:1.6rem;font-weight:600;line-height:1.1}
+.kpis small{color:var(--muted)}
+.tabs{display:flex;gap:.4rem;margin:1.2rem 0 .8rem;flex-wrap:wrap}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.tabpanel[hidden]{display:none}
+.steps{margin:0;padding-left:1.6rem}
+.steps li{margin:0 0 .85rem}
+.steps li::marker{font-family:"Barlow Condensed",sans-serif;font-weight:700}
+.steps .what{font-weight:600;display:block}
+.fx{display:block;font-family:"Cambria Math","Times New Roman",serif;font-size:1.04rem;margin:.1rem 0;overflow-x:auto;white-space:nowrap}
+.fx b{font-family:"Barlow Condensed",sans-serif;font-size:1.18rem;background:var(--yellow);color:var(--yellow-ink);padding:0 .3rem;border-radius:3px}
+.src{font-size:.85rem;color:var(--muted)}
+.tbl-wrap{overflow-x:auto;margin:.4rem 0 1rem}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{border:1px solid var(--line);padding:.3rem .45rem;text-align:center}
+th{background:var(--bg);font-weight:600}
+td.l{text-align:left}
+td:last-child{white-space:nowrap}
+td.on{background:var(--yellow);color:var(--yellow-ink);font-weight:700}
+tr.on td{background:var(--yellow-soft)}
+tr.on td.on{background:var(--yellow)}
+caption{text-align:left;font-weight:600;padding-bottom:.3rem}
+#chart,#sketch{display:block;width:100%;height:auto}
+.notes p,.notes li{color:var(--muted);max-width:80ch}
+.notes ul{padding-left:1.2rem}
+@media (max-width:980px){
+  .layout{grid-template-columns:1fr}
+  .results{position:static}
+}
+@media (max-width:520px){
+  .row{grid-template-columns:1fr}
+  .kpis{grid-template-columns:1fr 1fr}
+}
+@media print{
+  body{background:#fff}
+  .tabs,.noprint{display:none}
+  .tabpanel[hidden]{display:block!important}
+  .results{position:static}
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="stripe" aria-hidden="true"></div>
+  <div>
+    <h1>Durasi Pekerjaan Galian dengan Excavator</h1>
+    <p>Masukkan volume galian, alat, dan kondisi lapangan. Hasilnya: produktivitas per alat, durasi pekerjaan, dan langkah perhitungan menurut Permen PUPR No. 8 Tahun 2023 (rumus 28, Tabel A.10 sampai A.13).</p>
+  </div>
+</header>
+
+<main>
+<div class="layout">
+  <!-- INPUT -->
+  <section class="panel" aria-label="Data masukan">
+    <div class="noprint" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem">
+      <button type="button" id="btnExample">Muat contoh Permen (hlm. 63–64)</button>
+      <button type="button" id="btnReset">Kembalikan nilai awal</button>
+      <button type="button" id="btnPrint">Cetak hasil</button>
+    </div>
+    <div id="exampleMsg" class="msg info" hidden></div>
+
+    <fieldset>
+      <legend><span>1</span>Pekerjaan</legend>
+      <div class="row">
+        <div class="f"><label for="vol">Volume galian <small>(m³)</small></label><input type="number" id="vol" min="1" step="10"></div>
+        <div class="f"><label for="tk">Jam kerja efektif per hari <small>(jam)</small></label><input type="number" id="tk" min="1" max="24" step="0.5"><span class="hint">Contoh AHSP memakai 7 jam.</span></div>
+        <div class="f"><label for="hpw">Hari kerja per minggu</label><input type="number" id="hpw" min="1" max="7" step="1"></div>
+        <div class="f"><label for="target">Target durasi <small>(hari kerja, opsional)</small></label><input type="number" id="target" min="0" step="1" placeholder="kosongkan jika tidak ada"></div>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend><span>2</span>Alat</legend>
+      <div class="f full"><label for="equip">Jenis excavator</label><select id="equip"></select></div>
+      <div class="row">
+        <div class="f"><label for="V">Kapasitas bucket, V <small>(m³ munjung)</small></label><input type="number" id="V" min="0.05" max="3" step="0.01"></div>
+        <div class="f"><label for="n">Jumlah excavator <small>(unit)</small></label><input type="number" id="n" min="1" max="50" step="1"></div>
+      </div>
+      <div class="derived" id="classInfo"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend><span>3</span>Kondisi tanah dan galian</legend>
+      <div class="f full"><label for="soil">Jenis tanah <small>(untuk waktu siklus, Tabel A.11)</small></label>
+        <select id="soil">
+          <option value="0">Pasir, kerikil, tanah lunak</option>
+          <option value="1">Tanah umumnya, lempung</option>
+          <option value="2">Lempung keras, tanah keras</option>
+        </select></div>
+      <div class="f full"><label for="fbc">Kondisi pengisian bucket <small>(faktor bucket, Tabel A.10)</small></label>
+        <select id="fbc"></select>
+        <span class="hint" id="fbDesc"></span></div>
+      <div class="row">
+        <div class="f"><label for="fb">Nilai Fb dipakai</label><input type="number" id="fb" step="0.01"><span class="hint" id="fbRange"></span></div>
+        <div class="f"><label for="swing">Sudut putar (swing) <small>(derajat)</small></label><input type="number" id="swing" min="45" max="180" step="5"><input type="range" id="swingR" min="45" max="180" step="5" aria-label="Sudut putar"></div>
+        <div class="f"><label for="depth">Kedalaman galian <small>(m)</small></label><input type="number" id="depth" min="0.1" step="0.1"></div>
+        <div class="f"><label for="dmax">Kedalaman gali maksimum alat <small>(m)</small></label><input type="number" id="dmax" min="0.5" step="0.01"><span class="hint" id="dmaxHint"></span></div>
+      </div>
+      <div class="f full"><label for="dump">Kondisi membuang/menumpahkan <small>(Tabel A.12)</small></label>
+        <select id="dump">
+          <option value="0">Mudah</option>
+          <option value="1">Normal: menuang ke sasaran besar, misalnya dump truck</option>
+          <option value="2">Agak sulit</option>
+          <option value="3">Sulit</option>
+        </select>
+        <span class="hint">Lampiran V SE 182/2025 hanya menjelaskan kondisi Normal (large dumping target). Kondisi lain mengikuti pertimbangan dosen.</span></div>
+      <div class="derived" id="fvInfo"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend><span>4</span>Kondisi kerja</legend>
+      <div class="f full"><label for="fa">Kondisi operasi <small>(faktor efisiensi, Tabel A.13)</small></label>
+        <select id="fa">
+          <option value="0.83">Baik (0,83)</option>
+          <option value="0.75">Sedang (0,75)</option>
+          <option value="0.67">Agak kurang (0,67)</option>
+          <option value="0.58">Kurang (0,58)</option>
+        </select></div>
+    </fieldset>
+
+    <fieldset>
+      <legend><span>5</span>Opsi lanjutan</legend>
+      <div class="check"><input type="checkbox" id="tsManOn"><label for="tsManOn">Isi waktu siklus sendiri <small>(tidak memakai Tabel A.11)</small></label></div>
+      <div class="f" id="tsManBox" hidden><label for="tsMan">Waktu siklus Ts <small>(menit)</small></label><input type="number" id="tsMan" min="0.05" step="0.01"></div>
+      <div class="check"><input type="checkbox" id="t2On"><label for="t2On">Tambah waktu lain-lain T₂ <small>(dipakai contoh Lampiran V SE 182/2025, tidak ada di rumus 28 Permen)</small></label></div>
+      <div class="f" id="t2Box" hidden><label for="t2">T₂ <small>(menit)</small></label><input type="number" id="t2" min="0" step="0.01"></div>
+      <div class="check"><input type="checkbox" id="fkOn"><label for="fkOn">Kalikan faktor konversi bahan Fk <small>(dipakai item galian Lampiran V, tidak ada di rumus 28 Permen)</small></label></div>
+      <div class="f" id="fkBox" hidden><label for="fk">Fk</label><input type="number" id="fk" min="0.3" max="2" step="0.01"><span class="hint">Contoh Lampiran V: 0,70 (galian biasa), 0,80 (tanah liat). Ambil dari tabel faktor konversi bahan yang berlaku.</span></div>
+    </fieldset>
+  </section>
+
+  <!-- RESULTS -->
+  <section class="panel results" aria-label="Hasil" aria-live="polite">
+    <div id="errors"></div>
+    <div class="big">
+      <div class="num" id="oDays">0</div>
+      <div class="lbl">hari kerja<br><span id="oDaysExact"></span></div>
+    </div>
+    <div class="kpis">
+      <div><span class="num" id="oQ">0</span><small>m³/jam per alat</small></div>
+      <div><span class="num" id="oQt">0</span><small>m³/jam semua alat</small></div>
+      <div><span class="num" id="oHours">0</span><small>jam kerja</small></div>
+      <div><span class="num" id="oWeeks">0</span><small>minggu kalender (≈)</small></div>
+      <div><span class="num" id="oKoef">0</span><small>koefisien alat, jam/m³</small></div>
+      <div><span class="num" id="oTs">0</span><small>waktu siklus, menit</small></div>
+    </div>
+    <div id="targetOut"></div>
+
+    <div class="tabs noprint" role="tablist">
+      <button type="button" role="tab" aria-selected="true" data-tab="tSteps">Langkah perhitungan</button>
+      <button type="button" role="tab" aria-selected="false" data-tab="tTables">Tabel yang terpakai</button>
+      <button type="button" role="tab" aria-selected="false" data-tab="tChart">Jumlah alat vs durasi</button>
+      <button type="button" role="tab" aria-selected="false" data-tab="tSketch">Sketsa kondisi</button>
+    </div>
+
+    <div class="tabpanel" id="tSteps"><ol class="steps" id="steps"></ol></div>
+    <div class="tabpanel" id="tTables" hidden>
+      <div class="tbl-wrap" id="tblTs"></div>
+      <div class="tbl-wrap" id="tblFv"></div>
+      <div class="tbl-wrap" id="tblFb"></div>
+      <div class="tbl-wrap" id="tblFa"></div>
+    </div>
+    <div class="tabpanel" id="tChart" hidden>
+      <p class="src" style="margin-top:0">Durasi untuk 1 sampai 8 excavator dengan kondisi yang sama. Batang kuning adalah pilihan saat ini.</p>
+      <svg id="chart" viewBox="0 0 560 280" role="img" aria-label="Grafik durasi terhadap jumlah excavator"></svg>
+      <p class="src">Durasi turun sebanding dengan 1/n karena setiap excavator dianggap bekerja penuh. Di lapangan, penambahan alat dibatasi luas area kerja dan jumlah dump truck.</p>
+    </div>
+    <div class="tabpanel" id="tSketch" hidden>
+      <svg id="sketch" viewBox="0 0 560 260" role="img" aria-label="Sketsa kedalaman galian dan sudut putar"></svg>
+    </div>
+  </section>
+</div>
+
+<section class="panel notes" style="margin-top:1.25rem">
+  <h2>Dasar perhitungan dan batasan</h2>
+  <ul>
+    <li>Rumus, Tabel A.10 (faktor bucket), A.11 (waktu siklus standar), A.12 (faktor konversi galian), dan A.13 (faktor efisiensi) diambil dari Lampiran Permen PUPR No. 8 Tahun 2023, hlm. 62–64. Tabel-tabel itu bersumber dari Komatsu <i>Specifications and Application Handbook</i> edisi 28 (2007).</li>
+    <li>Tabel A.11 memberi dua angka untuk tiap rentang sudut putar. Tool ini membacanya sebagai nilai di ujung rentang (45°, 90°, 180°) dan menginterpolasi linear di antaranya. Cara ini adalah tafsiran, karena Permen tidak menyebut cara interpolasinya.</li>
+    <li>Kelas kapasitas bucket: V ≤ 0,60 m³ memakai baris 0,10–0,60; V ≤ 1,25 m³ memakai baris 0,60–1,25; V ≤ 2,20 m³ memakai baris 1,25–2,20.</li>
+    <li>Contoh hitungan di Permen hlm. 64 memakai Fb = 0,90 dan Ts = 0,30 menit (hasil 138,9 m³/jam), padahal keterangannya menyebut Fb = 1,00 dan Ts = 0,44 menit. Dengan nilai keterangan, hasilnya 105,26 m³/jam. Tombol contoh memakai nilai keterangan.</li>
+    <li>Durasi dihitung dari produktivitas excavator saja. Tool ini belum memeriksa apakah jumlah dump truck cukup, belum memperhitungkan cuaca, mobilisasi, maupun hambatan lapangan.</li>
+    <li>Kedalaman gali maksimum 6,37 m adalah data PC200-7 dari Permen. Untuk alat lain, isi dari brosur alat.</li>
+  </ul>
+</section>
+</main>
+
+<script>
+(function(){
+"use strict";
+var $ = function(id){ return document.getElementById(id); };
+function fmt(x,d){ if(!isFinite(x)) return "–"; return x.toLocaleString("id-ID",{minimumFractionDigits:d,maximumFractionDigits:d}); }
+
+/* ---------- Data dari Permen PUPR 8/2023 ---------- */
+var EQUIP = [
+  {id:"pc2007", name:"Excavator backhoe PC200-7, 0,93 m³ (acuan contoh Permen)", V:0.93, dmax:6.37},
+  {id:"E10",  name:"E10, PC-200-8MO long arm, 0,45 m³", V:0.45},
+  {id:"E10a", name:"E10a, excavator 200 P, 0,80 m³", V:0.80},
+  {id:"E10b", name:"E10b, excavator amphibius 200 P, 0,50 m³", V:0.50},
+  {id:"E10c", name:"E10c, excavator 80–140 HP, 0,90 m³", V:0.90},
+  {id:"E10d", name:"E10d, PC-130F-7, 0,53 m³", V:0.53},
+  {id:"E10e", name:"E10e, PC-195LC-8, 0,93 m³", V:0.93},
+  {id:"E10g", name:"E10g, PC-200-8MD, 1,00 m³", V:1.00},
+  {id:"mini", name:"Mini excavator, 0,20 m³ (Lampiran V SE 182/2025)", V:0.20},
+  {id:"custom", name:"Lainnya, isi kapasitas sendiri", V:null}
+];
+var CLASSES = ["0,10–0,60","0,60–1,25","1,25–2,20"];
+var SOILS = ["Pasir, kerikil, tanah lunak","Tanah umumnya, lempung","Lempung keras, tanah keras"];
+// [45°, 90° (akhir rentang 1), 90° (awal rentang 2), 180°] dalam detik
+var TS = [
+  [[10.8,14.6,14.6,18.4],[13.0,17.5,17.5,22.1],[16.6,22.4,22.4,28.2]],
+  [[14.4,18.2,18.2,22.1],[18.3,23.3,23.3,28.2],[22.3,28.3,28.3,34.4]],
+  [[16.6,20.4,20.4,24.3],[21.2,26.1,26.1,31.0],[25.8,31.8,31.8,37.8]]
+];
+var FV_ROWS = ["< 40 %","40–75 %","> 75 %"];
+var FV_COLS = ["Mudah","Normal","Agak sulit","Sulit"];
+var FV = [[0.7,0.9,1.1,1.4],[0.8,1.0,1.3,1.6],[0.9,1.1,1.5,1.8]];
+var FB = [
+  {t:"Mudah", lo:1.1, hi:1.2, d:"Tanah biasa, lempung, tanah lembut; memuat dari stockpile tanpa perlu daya gali."},
+  {t:"Sedang", lo:1.0, hi:1.1, d:"Tanah biasa berpasir kering; pasir kering, tanah campur tanah liat, gravel belum disaring, pasir padat."},
+  {t:"Agak sulit", lo:0.9, hi:1.0, d:"Tanah biasa berbatu; batu belah, lempung keras, pasir campur gravel, lempung berkadar air tinggi."},
+  {t:"Sulit", lo:0.8, hi:0.9, d:"Batu pecah, batu bongkah tak beraturan, batu hasil ledakan, batu bundar besar."}
+];
+var FA = [["Baik",0.83],["Sedang",0.75],["Agak kurang",0.67],["Kurang",0.58]];
+
+var DEFAULTS = {vol:5000, tk:7, hpw:6, target:"", equip:"pc2007", V:0.93, n:1, soil:"1", fbc:"1", fb:1.05,
+  swing:180, depth:2.0, dmax:6.37, dump:"1", fa:"0.83", tsManOn:false, tsMan:0.44, t2On:false, t2:0.10, fkOn:false, fk:0.80};
+
+/* ---------- Build selects ---------- */
+EQUIP.forEach(function(e){ var o=document.createElement("option"); o.value=e.id; o.textContent=e.name; $("equip").appendChild(o); });
+FB.forEach(function(b,i){ var o=document.createElement("option"); o.value=i; o.textContent=b.t+" ("+fmt(b.lo,1)+"–"+fmt(b.hi,1)+")"; $("fbc").appendChild(o); });
+
+function setAll(d){
+  ["vol","tk","hpw","target","V","n","fb","swing","depth","dmax","tsMan","t2","fk"].forEach(function(k){ $(k).value = d[k]; });
+  ["equip","soil","fbc","dump","fa"].forEach(function(k){ $(k).value = d[k]; });
+  ["tsManOn","t2On","fkOn"].forEach(function(k){ $(k).checked = d[k]; });
+  $("swingR").value = d.swing;
+}
+setAll(DEFAULTS);
+
+/* ---------- Events ---------- */
+document.querySelectorAll("input,select").forEach(function(el){
+  el.addEventListener("input", onChange);
+  el.addEventListener("change", onChange);
+});
+function onChange(e){
+  var id = e.target.id;
+  if(id === "swingR") $("swing").value = $("swingR").value;
+  if(id === "swing") $("swingR").value = $("swing").value;
+  if(id === "equip"){
+    var eq = EQUIP.find(function(x){ return x.id === $("equip").value; });
+    if(eq.V !== null) $("V").value = eq.V;
+    $("dmax").value = eq.dmax ? eq.dmax : "";
+  }
+  if(id === "V"){
+    var v = parseFloat($("V").value), cur = EQUIP.find(function(x){ return x.id === $("equip").value; });
+    if(cur.V !== null && Math.abs(cur.V - v) > 1e-9) $("equip").value = "custom";
+  }
+  if(id === "fbc"){
+    var b = FB[+$("fbc").value]; $("fb").value = ((b.lo+b.hi)/2).toFixed(2);
+  }
+  if(e.target.closest && !e.target.closest("#btnExample")) $("exampleMsg").hidden = true;
+  update();
+}
+$("btnReset").addEventListener("click", function(){ setAll(DEFAULTS); $("exampleMsg").hidden = true; update(); });
+$("btnPrint").addEventListener("click", function(){ window.print(); });
+$("btnExample").addEventListener("click", function(){
+  var d = Object.assign({}, DEFAULTS, {equip:"pc2007", V:0.93, n:1, fbc:"1", fb:1.00, fa:"0.83", depth:3.0, dmax:6.37, dump:"1", tsManOn:true, tsMan:0.44, t2On:false, fkOn:false});
+  setAll(d);
+  var m = $("exampleMsg");
+  m.innerHTML = "Contoh Permen hlm. 63–64 memakai V = 0,93 m³, Fb = 1,00, Fa = 0,83, Fv = 1,0, dan Ts = 0,44 menit (26,3 detik). Nilai 26,3 detik adalah rata-rata angka terkecil dan terbesar di kolom 90°–180°, bukan satu sel tabel, sehingga di sini diisi manual. Permen menyebut kedalaman galian 2,0 m, tetapi 2,0/6,37 = 31% masuk baris &lt; 40% (Fv = 0,9). Agar Fv = 1,0 seperti di Permen, kedalaman di sini diatur 3,0 m. Hasil yang benar: 105,26 m³/jam.";
+  m.hidden = false; update();
+});
+document.querySelectorAll("[data-tab]").forEach(function(b){
+  b.addEventListener("click", function(){
+    document.querySelectorAll("[data-tab]").forEach(function(x){ x.setAttribute("aria-selected", x===b ? "true":"false"); $(x.getAttribute("data-tab")).hidden = (x!==b); });
+  });
+});
+
+/* ---------- Core ---------- */
+function num(id){ var v = parseFloat($(id).value); return isFinite(v) ? v : NaN; }
+
+function compute(){
+  var r = {errors:[], warns:[]};
+  r.vol = num("vol"); r.tk = num("tk"); r.hpw = num("hpw"); r.target = num("target");
+  r.V = num("V"); r.n = Math.round(num("n"));
+  r.soil = +$("soil").value; r.fbc = +$("fbc").value; r.Fb = num("fb");
+  r.swing = num("swing"); r.depth = num("depth"); r.dmax = num("dmax");
+  r.dump = +$("dump").value; r.Fa = parseFloat($("fa").value);
+  r.tsManOn = $("tsManOn").checked; r.tsMan = num("tsMan");
+  r.t2On = $("t2On").checked; r.T2 = r.t2On ? num("t2") : 0;
+  r.fkOn = $("fkOn").checked; r.Fk = r.fkOn ? num("fk") : 1;
+
+  if(!(r.vol > 0)) r.errors.push("Isi volume galian lebih dari 0.");
+  if(!(r.tk > 0 && r.tk <= 24)) r.errors.push("Jam kerja per hari harus antara 0 dan 24.");
+  if(!(r.hpw >= 1 && r.hpw <= 7)) r.errors.push("Hari kerja per minggu harus 1 sampai 7.");
+  if(!(r.V > 0)) r.errors.push("Isi kapasitas bucket.");
+  if(!(r.n >= 1)) r.errors.push("Jumlah excavator minimal 1.");
+  if(!(r.Fb > 0)) r.errors.push("Isi nilai faktor bucket.");
+
+  // Waktu siklus
+  r.cls = r.V <= 0.60 ? 0 : r.V <= 1.25 ? 1 : 2;
+  if(r.V < 0.10 || r.V > 2.20) r.warns.push("Kapasitas bucket di luar rentang Tabel A.11 (0,10–2,20 m³). Waktu siklus diambil dari baris terdekat, sebaiknya isi Ts sendiri.");
+  r.swingC = Math.min(180, Math.max(45, r.swing));
+  if(!(r.swing >= 45 && r.swing <= 180)) r.warns.push("Sudut putar di luar rentang tabel (45°–180°). Dipakai " + fmt(r.swingC,0) + "°.");
+  var row = TS[r.cls][r.soil];
+  if(r.swingC <= 90){ r.tsSec = row[0] + (row[1]-row[0])*(r.swingC-45)/45; r.tsBand = 0; }
+  else { r.tsSec = row[2] + (row[3]-row[2])*(r.swingC-90)/90; r.tsBand = 1; }
+  r.tsTableMin = r.tsSec/60;
+  if(r.tsManOn){
+    if(!(r.tsMan > 0)) r.errors.push("Isi waktu siklus manual lebih dari 0.");
+    r.Ts = r.tsMan;
+  } else r.Ts = r.tsTableMin;
+  if(r.t2On && !(r.T2 >= 0)) r.errors.push("Isi T₂ dengan angka 0 atau lebih.");
+  r.Ts1 = r.Ts + r.T2;
+
+  // Fv
+  if(!(r.depth > 0)) r.errors.push("Isi kedalaman galian.");
+  if(!(r.dmax > 0)) r.errors.push("Isi kedalaman gali maksimum alat dari brosur (dibutuhkan untuk memilih baris Tabel A.12).");
+  r.ratio = r.depth / r.dmax;
+  if(r.ratio > 1) r.errors.push("Kedalaman galian melebihi kedalaman gali maksimum alat. Pilih alat lain atau ubah metode.");
+  r.fvRow = r.ratio < 0.40 ? 0 : r.ratio <= 0.75 ? 1 : 2;
+  r.Fv = FV[r.fvRow][r.dump];
+
+  // Fb check
+  var b = FB[r.fbc];
+  if(r.Fb < b.lo - 1e-9 || r.Fb > b.hi + 1e-9) r.warns.push("Fb " + fmt(r.Fb,2) + " di luar rentang kondisi " + b.t + " (" + fmt(b.lo,1) + "–" + fmt(b.hi,1) + ").");
+  if(r.fkOn && !(r.Fk > 0)) r.errors.push("Isi nilai Fk.");
+
+  r.Q = r.V * r.Fb * r.Fa * 60 * r.Fk / (r.Ts1 * r.Fv);
+  r.Qt = r.Q * r.n;
+  r.hours = r.vol / r.Qt;
+  r.days = r.hours / r.tk;
+  r.daysCeil = Math.ceil(r.days - 1e-9);
+  r.weeks = r.daysCeil / r.hpw;
+  r.koef = 1 / r.Q;
+  if(r.target > 0){ r.nReq = Math.ceil(r.vol / (r.Q * r.tk * r.target) - 1e-9); }
+  return r;
+}
+
+function fxl(s){ return '<span class="fx">'+s+'</span>'; }
+
+function renderSteps(r){
+  var s = [];
+  var tsLine;
+  if(r.tsManOn){
+    tsLine = fxl('Ts = <b>'+fmt(r.Ts,2)+'</b> menit (diisi manual)') +
+      '<span class="src">Pembanding dari Tabel A.11: '+fmt(r.tsSec,1)+' detik = '+fmt(r.tsTableMin,3)+' menit.</span>';
+  } else {
+    var row = TS[r.cls][r.soil], a, bnd, lo, hi;
+    if(r.tsBand===0){ lo=45; hi=90; a=row[0]; bnd=row[1]; } else { lo=90; hi=180; a=row[2]; bnd=row[3]; }
+    tsLine = '<span class="src">Tabel A.11: bucket '+CLASSES[r.cls]+' m³, '+SOILS[r.soil].toLowerCase()+', swing '+fmt(r.swingC,0)+'°.</span>' +
+      (r.swingC===lo||r.swingC===hi ? fxl('Ts = <b>'+fmt(r.tsSec,1)+'</b> detik') :
+       fxl('Ts = '+fmt(a,1)+' + ('+fmt(bnd,1)+' − '+fmt(a,1)+') × ('+fmt(r.swingC,0)+' − '+lo+')/('+hi+' − '+lo+') = <b>'+fmt(r.tsSec,2)+'</b> detik')) +
+      fxl('Ts = '+fmt(r.tsSec,2)+' / 60 = <b>'+fmt(r.Ts,3)+'</b> menit');
+  }
+  s.push('<li><span class="what">Waktu siklus standar</span>'+tsLine+
+    (r.t2On ? fxl('Ts₁ = Ts + T₂ = '+fmt(r.Ts,3)+' + '+fmt(r.T2,2)+' = <b>'+fmt(r.Ts1,3)+'</b> menit') : '')+'</li>');
+
+  s.push('<li><span class="what">Faktor konversi galian (Tabel A.12)</span>'+
+    fxl('Rasio kedalaman = '+fmt(r.depth,2)+' / '+fmt(r.dmax,2)+' = '+fmt(r.ratio*100,1)+' % → baris '+FV_ROWS[r.fvRow])+
+    fxl('Kondisi membuang '+FV_COLS[r.dump].toLowerCase()+' → Fv = <b>'+fmt(r.Fv,1)+'</b>')+'</li>');
+
+  s.push('<li><span class="what">Faktor bucket dan efisiensi</span>'+
+    fxl('Fb = <b>'+fmt(r.Fb,2)+'</b> (Tabel A.10, kondisi '+FB[r.fbc].t.toLowerCase()+')')+
+    fxl('Fa = <b>'+fmt(r.Fa,2)+'</b> (Tabel A.13, kondisi '+FA.find(function(x){return x[1]===r.Fa;})[0].toLowerCase()+')')+'</li>');
+
+  var num1 = 'V × Fb × Fa × 60' + (r.fkOn ? ' × Fk' : '');
+  var den1 = (r.t2On ? 'Ts₁' : 'Ts') + ' × Fv';
+  var numv = fmt(r.V,2)+' × '+fmt(r.Fb,2)+' × '+fmt(r.Fa,2)+' × 60'+(r.fkOn ? ' × '+fmt(r.Fk,2) : '');
+  var denv = fmt(r.Ts1,3)+' × '+fmt(r.Fv,1);
+  s.push('<li><span class="what">Produktivitas satu excavator (rumus 28)</span>'+
+    fxl('Q = ('+num1+') / ('+den1+')')+
+    fxl('Q = ('+numv+') / ('+denv+')')+
+    fxl('Q = '+fmt(r.V*r.Fb*r.Fa*60*r.Fk,3)+' / '+fmt(r.Ts1*r.Fv,4)+' = <b>'+fmt(r.Q,2)+'</b> m³/jam')+
+    fxl('Koefisien alat = 1 / Q = <b>'+fmt(r.koef,4)+'</b> jam/m³')+'</li>');
+
+  s.push('<li><span class="what">Produktivitas seluruh excavator</span>'+
+    fxl('Q<sub>total</sub> = Q × n = '+fmt(r.Q,2)+' × '+r.n+' = <b>'+fmt(r.Qt,2)+'</b> m³/jam')+'</li>');
+
+  s.push('<li><span class="what">Durasi pekerjaan</span>'+
+    fxl('Jam kerja = Volume / Q<sub>total</sub> = '+fmt(r.vol,0)+' / '+fmt(r.Qt,2)+' = <b>'+fmt(r.hours,2)+'</b> jam')+
+    fxl('Hari kerja = '+fmt(r.hours,2)+' / '+fmt(r.tk,1)+' = '+fmt(r.days,2)+' → dibulatkan <b>'+r.daysCeil+'</b> hari')+
+    fxl('Minggu = '+r.daysCeil+' / '+fmt(r.hpw,0)+' = <b>'+fmt(r.weeks,1)+'</b> minggu')+'</li>');
+
+  if(r.target > 0){
+    s.push('<li><span class="what">Jumlah alat untuk target '+fmt(r.target,0)+' hari kerja</span>'+
+      fxl('n = Volume / (Q × jam per hari × target) = '+fmt(r.vol,0)+' / ('+fmt(r.Q,2)+' × '+fmt(r.tk,1)+' × '+fmt(r.target,0)+') = '+fmt(r.vol/(r.Q*r.tk*r.target),2)+' → <b>'+r.nReq+'</b> unit')+'</li>');
+  }
+  $("steps").innerHTML = s.join("");
+}
+
+function renderTables(r){
+  // Ts table
+  var h = '<table><caption>Tabel A.11 Waktu siklus standar backhoe (detik)</caption><thead><tr><th rowspan="2">Bucket (m³)</th><th rowspan="2">Kondisi tanah</th><th colspan="2">45°–90°</th><th colspan="2">90°–180°</th></tr><tr><th>45°</th><th>90°</th><th>90°</th><th>180°</th></tr></thead><tbody>';
+  for(var c=0;c<3;c++) for(var so=0;so<3;so++){
+    var on = (!r.tsManOn && c===r.cls && so===r.soil);
+    h += '<tr'+(on?' class="on"':'')+'>' + (so===0?'<td rowspan="3">'+CLASSES[c]+'</td>':'') + '<td class="l">'+SOILS[so]+'</td>';
+    for(var k=0;k<4;k++){
+      var band = k<2?0:1, cellOn = on && band===r.tsBand;
+      h += '<td'+(cellOn?' class="on"':'')+'>'+fmt(TS[c][so][k],1)+'</td>';
+    }
+    h += '</tr>';
+  }
+  h += '</tbody></table><p class="src">Sel yang disorot adalah dua nilai yang diinterpolasi untuk sudut '+fmt(r.swingC,0)+'°.'+(r.tsManOn?' Saat ini Ts diisi manual, jadi tabel tidak dipakai.':'')+'</p>';
+  $("tblTs").innerHTML = h;
+
+  var f = '<table><caption>Tabel A.12 Faktor konversi galian (Fv)</caption><thead><tr><th>Kedalaman / maks</th>';
+  FV_COLS.forEach(function(x){ f += '<th>'+x+'</th>'; });
+  f += '</tr></thead><tbody>';
+  for(var i=0;i<3;i++){
+    f += '<tr'+(i===r.fvRow?' class="on"':'')+'><td>'+FV_ROWS[i]+'</td>';
+    for(var j=0;j<4;j++) f += '<td'+(i===r.fvRow&&j===r.dump?' class="on"':'')+'>'+fmt(FV[i][j],1)+'</td>';
+    f += '</tr>';
+  }
+  $("tblFv").innerHTML = f + '</tbody></table>';
+
+  var b = '<table><caption>Tabel A.10 Faktor bucket (Fb) excavator backhoe</caption><thead><tr><th>Kondisi</th><th>Kondisi lapangan (ringkas)</th><th>Fb</th></tr></thead><tbody>';
+  FB.forEach(function(x,i){ b += '<tr'+(i===r.fbc?' class="on"':'')+'><td>'+x.t+'</td><td class="l">'+x.d+'</td><td'+(i===r.fbc?' class="on"':'')+'>'+fmt(x.lo,1)+'–'+fmt(x.hi,1)+'</td></tr>'; });
+  $("tblFb").innerHTML = b + '</tbody></table>';
+
+  var a = '<table><caption>Tabel A.13 Faktor efisiensi kerja excavator (Fa)</caption><thead><tr><th>Kondisi operasi</th><th>Fa</th></tr></thead><tbody>';
+  FA.forEach(function(x){ var on = x[1]===r.Fa; a += '<tr'+(on?' class="on"':'')+'><td>'+x[0]+'</td><td'+(on?' class="on"':'')+'>'+fmt(x[1],2)+'</td></tr>'; });
+  $("tblFa").innerHTML = a + '</tbody></table>';
+}
+
+function renderChart(r){
+  var W=560,H=280,L=52,R=14,T=24,B=44, N=8;
+  var d = []; for(var i=1;i<=N;i++) d.push(r.vol/(r.Q*i)/r.tk);
+  var max = d[0], step = niceStep(max/5), ymax = Math.ceil(max/step)*step;
+  var bw = (W-L-R)/N;
+  var sy = function(v){ return H-B - v/ymax*(H-T-B); };
+  var g = '';
+  for(var v=0; v<=ymax+1e-9; v+=step){
+    g += '<line x1="'+L+'" x2="'+(W-R)+'" y1="'+sy(v)+'" y2="'+sy(v)+'" stroke="var(--line)"/>';
+    g += '<text x="'+(L-8)+'" y="'+(sy(v)+4)+'" text-anchor="end" font-size="12" fill="var(--muted)">'+fmt(v, step<1?1:0)+'</text>';
+  }
+  d.forEach(function(v,i){
+    var x = L + i*bw + bw*0.18, w = bw*0.64, on = (i+1)===r.n;
+    g += '<rect x="'+x+'" y="'+sy(v)+'" width="'+w+'" height="'+(H-B-sy(v))+'" fill="'+(on?'var(--yellow)':'var(--steel)')+'" opacity="'+(on?1:0.55)+'" rx="2"/>';
+    g += '<text x="'+(x+w/2)+'" y="'+(sy(v)-6)+'" text-anchor="middle" font-size="12" fill="var(--ink)"'+(on?' font-weight="700"':'')+'>'+fmt(v,1)+'</text>';
+    g += '<text x="'+(x+w/2)+'" y="'+(H-B+17)+'" text-anchor="middle" font-size="12" fill="var(--muted)">'+(i+1)+'</text>';
+  });
+  g += '<text x="'+((L+W-R)/2)+'" y="'+(H-6)+'" text-anchor="middle" font-size="13" fill="var(--ink)">Jumlah excavator (unit)</text>';
+  g += '<text transform="translate(14,'+((T+H-B)/2)+') rotate(-90)" text-anchor="middle" font-size="13" fill="var(--ink)">Hari kerja</text>';
+  $("chart").innerHTML = g;
+}
+function niceStep(raw){ if(!(raw>0)) return 1; var p=Math.pow(10,Math.floor(Math.log10(raw))), m=raw/p; return (m<=1?1:m<=2?2:m<=5?5:10)*p; }
+
+function renderSketch(r){
+  var g = '';
+  // side view: depth
+  var gx=20, gy=92, gw=250, scale = 128/Math.max(r.dmax||1, r.depth||1, 1);
+  g += '<text x="'+gx+'" y="20" font-size="15" font-weight="600" fill="var(--ink)" font-family="Barlow Condensed, Arial Narrow, sans-serif">Tampak samping: kedalaman galian</text>';
+  g += '<rect x="'+gx+'" y="'+gy+'" width="'+gw+'" height="140" fill="var(--soil-light)"/>';
+  g += '<line x1="'+gx+'" x2="'+(gx+gw)+'" y1="'+gy+'" y2="'+gy+'" stroke="var(--ink)" stroke-width="2"/>';
+  var dpx = Math.min(132, (r.depth||0)*scale), mpx = Math.min(136, (r.dmax||0)*scale);
+  g += '<rect x="'+(gx+130)+'" y="'+gy+'" width="90" height="'+dpx+'" fill="var(--bg)" stroke="var(--soil)"/>';
+  if(r.dmax>0) g += '<line x1="'+(gx+120)+'" x2="'+(gx+gw)+'" y1="'+(gy+mpx)+'" y2="'+(gy+mpx)+'" stroke="var(--warn)" stroke-dasharray="5 4" stroke-width="1.5"/><text x="'+(gx+gw-4)+'" y="'+(gy+mpx-5)+'" text-anchor="end" font-size="12" fill="var(--warn)">maks '+fmt(r.dmax,2)+' m</text>';
+  g += '<text x="'+(gx+226)+'" y="'+(gy+dpx/2+4)+'" font-size="12" fill="var(--ink)">'+fmt(r.depth,1)+' m</text>';
+  // excavator block
+  g += '<rect x="'+(gx+20)+'" y="'+(gy-18)+'" width="70" height="12" rx="5" fill="var(--steel)"/>';
+  g += '<rect x="'+(gx+30)+'" y="'+(gy-44)+'" width="48" height="26" rx="4" fill="var(--yellow)"/>';
+  var tipX = gx+175, tipY = gy+Math.max(dpx-10,4);
+  g += '<polyline points="'+(gx+72)+','+(gy-36)+' '+(gx+140)+','+(gy-48)+' '+tipX+','+tipY+'" fill="none" stroke="var(--yellow)" stroke-width="7" stroke-linejoin="round"/>';
+  g += '<rect x="'+(tipX-8)+'" y="'+(tipY-4)+'" width="16" height="14" rx="3" fill="var(--steel)"/>';
+  g += '<text x="'+gx+'" y="'+(gy+160)+'" font-size="13" fill="var(--ink)">Rasio '+fmt(r.ratio*100,1)+' % → baris '+FV_ROWS[r.fvRow]+'</text>';
+
+  // plan view: swing
+  var cx=420, cy=150, rad=80, a0=180, a1=180+r.swingC;
+  g += '<text x="310" y="20" font-size="15" font-weight="600" fill="var(--ink)" font-family="Barlow Condensed, Arial Narrow, sans-serif">Tampak atas: sudut putar</text>';
+  function P(a,d){ return [cx+d*Math.cos(a*Math.PI/180), cy+d*Math.sin(a*Math.PI/180)]; }
+  var p0=P(a0,rad), p1=P(a1,rad), large = r.swingC>180?1:0;
+  g += '<path d="M'+p0[0]+','+p0[1]+' A'+rad+','+rad+' 0 '+large+' 1 '+p1[0]+','+p1[1]+'" fill="none" stroke="var(--yellow)" stroke-width="3" stroke-dasharray="7 5"/>';
+  var pit=P(a0,rad+22), trk=P(a1,rad+20);
+  g += '<ellipse cx="'+pit[0]+'" cy="'+pit[1]+'" rx="18" ry="14" fill="var(--soil)"/><text x="'+pit[0]+'" y="'+(pit[1]+30)+'" text-anchor="middle" font-size="12" fill="var(--ink)">galian</text>';
+  g += '<g transform="translate('+trk[0].toFixed(1)+','+trk[1].toFixed(1)+') rotate('+(a1+90)+')"><rect x="-22" y="-12" width="32" height="24" rx="2" fill="var(--steel)"/><rect x="12" y="-10" width="10" height="20" rx="2" fill="var(--steel)" opacity=".7"/></g>';
+  g += '<rect x="'+(cx-22)+'" y="'+(cy-22)+'" width="44" height="44" rx="6" fill="var(--yellow)"/>';
+  var mid = P(a0 + r.swingC/2, rad-26);
+  g += '<text x="'+mid[0]+'" y="'+(mid[1]+5)+'" text-anchor="middle" font-size="16" font-weight="700" fill="var(--ink)">'+fmt(r.swingC,0)+'°</text>';
+  $("sketch").innerHTML = g;
+}
+
+function update(){
+  var eq = EQUIP.find(function(x){ return x.id === $("equip").value; });
+  $("dmaxHint").textContent = eq.dmax ? "Data PC200-7 dari Permen." : "Isi dari brosur alat yang dipilih.";
+  $("tsManBox").hidden = !$("tsManOn").checked;
+  $("t2Box").hidden = !$("t2On").checked;
+  $("fkBox").hidden = !$("fkOn").checked;
+  var b = FB[+$("fbc").value];
+  $("fbDesc").textContent = b.d;
+  $("fbRange").textContent = "Rentang " + b.t.toLowerCase() + ": " + fmt(b.lo,1) + "–" + fmt(b.hi,1);
+
+  var r = compute();
+  $("classInfo").innerHTML = (r.V>0) ? "Kelas bucket di Tabel A.11: <b>" + CLASSES[r.cls] + " m³</b>" : "";
+  $("fvInfo").innerHTML = (r.depth>0 && r.dmax>0) ? "Rasio kedalaman: <b>" + fmt(r.ratio*100,1) + " %</b>, baris " + FV_ROWS[r.fvRow] + ", Fv = <b>" + fmt(r.Fv,1) + "</b>" : "";
+
+  var html = "";
+  r.errors.forEach(function(e){ html += '<div class="msg">'+e+'</div>'; });
+  r.warns.forEach(function(e){ html += '<div class="msg info">'+e+'</div>'; });
+  $("errors").innerHTML = html;
+
+  var ok = r.errors.length === 0 && isFinite(r.Q) && r.Q > 0;
+  $("oDays").textContent = ok ? r.daysCeil : "–";
+  $("oDaysExact").textContent = ok ? "(" + fmt(r.days,2) + " hari sebelum dibulatkan)" : "";
+  $("oQ").textContent = ok ? fmt(r.Q,2) : "–";
+  $("oQt").textContent = ok ? fmt(r.Qt,2) : "–";
+  $("oHours").textContent = ok ? fmt(r.hours,1) : "–";
+  $("oWeeks").textContent = ok ? fmt(r.weeks,1) : "–";
+  $("oKoef").textContent = ok ? fmt(r.koef,4) : "–";
+  $("oTs").textContent = ok ? fmt(r.Ts1,3) : "–";
+  $("targetOut").innerHTML = (ok && r.target > 0) ?
+    '<div class="msg info" style="margin-top:1rem">Untuk selesai dalam <b>'+fmt(r.target,0)+' hari kerja</b> dibutuhkan minimal <b>'+r.nReq+' excavator</b>. '+(r.nReq<=r.n?'Jumlah saat ini ('+r.n+') sudah cukup.':'Jumlah saat ini ('+r.n+') belum cukup.')+'</div>' : "";
+  if(ok){ renderSteps(r); renderTables(r); renderChart(r); renderSketch(r); }
+  else { $("steps").innerHTML = '<li>Lengkapi data masukan yang ditandai untuk melihat perhitungan.</li>'; }
+}
+
+update();
+})();
+</script>
+</body>
+</html>
